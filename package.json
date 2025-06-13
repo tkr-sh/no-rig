@@ -1,5 +1,5 @@
 {
-    "dependencies": {},
+    "dependencies": { "htmx.org": "^1.9.12", "hyperscript": "^2.0.2", "hyperscript.org": "^0.9.14" },
     "devDependencies": {
         "@biomejs/biome": "1.9.4",
         "@types/node": "^22.9.3"

@@ -9,7 +9,7 @@ use {
             handling_file::{self},
         },
     },
-    axum::{middleware, routing::get, Router},
+    axum::{Router, middleware, routing::get},
     log::info,
     tower_http::compression::CompressionLayer,
 };
@@ -22,7 +22,8 @@ pub async fn start() {
 
     // The main router of the application is defined here
     let app = Router::new()
-        .route("/", get(pages::hello::render))
+        .route("/", get(pages::create::render))
+        .route("/create", get(pages::create::render))
         .layer(middleware::from_fn(header::render))
         .layer(middleware::from_fn(template::template))
         .layer(middleware::from_fn(cache::html_middleware))
@@ -41,3 +42,4 @@ pub async fn start() {
         .await
         .expect("Couldn't start the server.");
 }
+

@@ -1,8 +1,8 @@
 use {
     axum::response::{IntoResponse, Response},
     hyper::{
-        header::{InvalidHeaderValue, ToStrError},
         StatusCode,
+        header::{InvalidHeaderValue, ToStrError},
     },
     std::{convert::Infallible, str::Utf8Error},
 };
@@ -16,6 +16,7 @@ pub enum ServerError {
     DebugedError(String),
     PublicRessourceNotFound(String),
     ToStrError(ToStrError),
+    SqlError(sqlx::Error),
 }
 
 /// Macro to easily implement errors into
@@ -35,6 +36,7 @@ impl_from_error!(Utf8Error, Self::Utf8Error);
 impl_from_error!(String, Self::DebugedError);
 impl_from_error!(InvalidHeaderValue, Self::InvalidHeader);
 impl_from_error!(ToStrError, Self::ToStrError);
+impl_from_error!(sqlx::Error, Self::SqlError);
 
 pub type ServerResult<T> = Result<T, ServerError>;
 
@@ -56,6 +58,9 @@ impl IntoResponse for ServerError {
             },
             Self::Utf8Error(err) => {
                 format!("Error decoding buffer to UTF-8: {err:#?}")
+            },
+            Self::SqlError(err) => {
+                format!("SQL error: {err:#?}")
             },
             Self::PublicRessourceNotFound(path) => {
                 return (StatusCode::NOT_FOUND, format!("Couldn't find file: {path}"))
@@ -119,3 +124,4 @@ where
         .unwrap()
     }
 }
+

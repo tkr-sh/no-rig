@@ -1,4 +1,4 @@
-use axum::{routing::method_routing::post, Router};
+use axum::{Router, routing::method_routing::post};
 
 mod create;
 mod vote;
@@ -6,5 +6,5 @@ mod vote;
 pub fn routes() -> Router {
     Router::new()
         .route("/vote/{*id}", post(vote::post))
-        .route("/create", post(vote::post))
+        .route("/create", post(create::post))
 }

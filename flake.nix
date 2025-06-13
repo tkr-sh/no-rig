@@ -30,6 +30,8 @@
                     ripgrep
                     rust-bin.nightly.latest.default
                 ];
+
+                LD_LIBRARY_PATH = lib.makeLibraryPath [ openssl ];
             };
         }
     );
