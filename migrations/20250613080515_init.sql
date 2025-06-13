@@ -1,10 +1,11 @@
-create table poll (
+create table polls (
     id integer primary key generated always as identity,
     title varchar(255) not null,
-    id uuid not null
+    id uuid not null,
+    allowed_usernames text[]
 );
 
-create table option (
+create table polls_options (
     id biginteger primary key generated always as identity,
     name varchar(255) not null,
     poll_id integer not null,
@@ -15,6 +16,7 @@ create table user_poll (
     id biginteger primary key generated always as identity,
     name varchar(32) not null,
     poll_id integer not null,
+    voted_at timestamp not null default now,
     -- uniq name,poll_id
     foreign key (poll_id) references poll(id)
 );

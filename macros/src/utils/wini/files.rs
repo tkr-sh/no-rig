@@ -33,4 +33,3 @@ pub fn get_js_or_css_files_in_current_dir() -> Vec<String> {
 
     files
 }
-

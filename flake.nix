@@ -19,6 +19,8 @@
         {
             devShells.default = with pkgs; mkShell {
                 buildInputs = [
+                    pkg-config
+                    openssl
                     watchexec
                     yq-go
                     coreutils

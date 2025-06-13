@@ -7,3 +7,5 @@ pub mod server;
 pub mod shared;
 pub mod template;
 pub mod utils;
+pub mod routes;
+pub mod db;
