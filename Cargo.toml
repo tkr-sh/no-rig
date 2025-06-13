@@ -21,6 +21,7 @@
   regex = "1"
   serde = { version = "1", features = ["derive"] }
   serde_json = "1.0"
+  sqlx = "0.8.6"
   strum = "0.27"
   strum_macros = "0.27"
   tokio = { version = "1", features = ["fs", "macros", "rt-multi-thread"] }
@@ -156,4 +157,3 @@
   too_many_arguments = "allow"
   type_complexity = "allow"
   upper_case_acronyms = "allow"
-
