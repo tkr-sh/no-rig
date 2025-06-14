@@ -29,6 +29,7 @@
                     fd
                     ripgrep
                     rust-bin.nightly.latest.default
+                    sqlx-cli
                 ];
 
                 LD_LIBRARY_PATH = lib.makeLibraryPath [ openssl ];
