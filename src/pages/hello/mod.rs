@@ -1,6 +1,6 @@
 use {
     maud::{Markup, html},
-    wini_macros::{init_cache, page},
+    wini_macros::page,
 };
 
 // #[init_cache]

@@ -4,7 +4,6 @@ use {
         shared::{validate::validate_votes, wini::err::ServerError},
     },
     axum::{Json, extract::Path},
-    hyper::StatusCode,
     serde::Deserialize,
     std::{collections::HashMap, str::FromStr},
     uuid::Uuid,

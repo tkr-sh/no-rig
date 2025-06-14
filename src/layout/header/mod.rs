@@ -1,7 +1,5 @@
 use {
     crate::shared::wini::err::ServerResult,
-    axum::{body::Body, http::response::Parts},
-    hyper::StatusCode,
     maud::{html, Markup, PreEscaped},
     wini_macros::layout,
 };
