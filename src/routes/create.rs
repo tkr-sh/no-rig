@@ -9,12 +9,13 @@ use {
 pub(crate) struct CreatePoll {
     title: String,
     options: Vec<String>,
-    allowed_usernames: Vec<String>,
+    users: Vec<String>,
 }
 
-#[axum::debug_handler]
 pub(crate) async fn post(Json(body): Json<CreatePoll>) -> Result<String, ServerError> {
     let uuid = Uuid::new_v4();
+
+    println!("{uuid}");
 
     let id = sqlx::query_scalar!(
         r#"
@@ -24,10 +25,12 @@ pub(crate) async fn post(Json(body): Json<CreatePoll>) -> Result<String, ServerE
         "#,
         body.title,
         uuid,
-        &body.allowed_usernames,
+        &body.users,
     )
     .fetch_one(&*DB)
     .await?;
+
+    println!("uwu {id}");
 
     sqlx::query!(
         r#"
@@ -38,7 +41,7 @@ pub(crate) async fn post(Json(body): Json<CreatePoll>) -> Result<String, ServerE
         &body.options,
         &vec![id; body.options.len()],
     )
-    .fetch_one(&*DB)
+    .execute(&*DB)
     .await?;
 
 

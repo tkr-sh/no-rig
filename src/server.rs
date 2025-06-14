@@ -2,6 +2,7 @@ use {
     crate::{
         layout::header,
         pages,
+        routes,
         shared::wini::PORT,
         template,
         utils::wini::{
@@ -28,7 +29,8 @@ pub async fn start() {
         .layer(middleware::from_fn(template::template))
         .layer(middleware::from_fn(cache::html_middleware))
         .route("/{*wildcard}", get(handling_file::handle_file))
-        .layer(comression_layer);
+        .layer(comression_layer)
+        .nest("/api", routes::routes());
 
 
     // Start the server

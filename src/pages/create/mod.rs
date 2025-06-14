@@ -7,6 +7,7 @@ use {
 pub async fn render() -> Markup {
     html! {
         h1 {"Let's create a new poll!"}
+        input placeholder = "Poll title" #title;
 
         h2 { "Options" }
         ul #options {}
@@ -32,6 +33,14 @@ pub async fn render() -> Markup {
             "+"
         }
 
+        button #submit
+        {
+            "Create"
+        }
+
+        p #res {
+
+        }
     }
 }
 

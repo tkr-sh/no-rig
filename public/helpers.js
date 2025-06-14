@@ -46,7 +46,7 @@ var $new = (k, p, t, c) => {
 var api = (method, url, data) => {
     const options = { method, headers: { 'Content-Type': 'application/json' } };
     if (data) options.body = JSON.stringify(data);
-    return fetch(url, options).then(res => res.json());
+    return fetch(url, options);
 };
 var get = (url) => api('GET', url);
 var post = (url, data) => api('POST', url, data);

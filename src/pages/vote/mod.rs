@@ -1,9 +1,117 @@
 use {
-    maud::{html, Markup},
+    crate::db::DB,
+    axum::extract::Request,
+    maud::{Markup, html},
+    std::str::FromStr,
+    uuid::Uuid,
     wini_macros::page,
 };
 
 #[page]
-pub async fn render() -> Markup {
-    html! {}
+pub async fn render(req: Request) -> Markup {
+    let Some(uuid_as_str) = req.uri().path().split('/').next_back() else {
+        return html!("Expected a UUID!");
+    };
+
+    let Ok(uuid) = Uuid::from_str(uuid_as_str) else {
+        return html!("Not a valid uuid v4");
+    };
+
+    struct MiniPoll {
+        expected_number_of_users: i32,
+        id: i32,
+    }
+
+
+    let Some(MiniPoll {
+        expected_number_of_users,
+        id,
+    }): Option<MiniPoll> = sqlx::query_as!(
+        MiniPoll,
+        r#"
+        select cardinality(allowed_usernames) as "expected_number_of_users!", id
+        from polls
+        where uuid = $1
+        "#,
+        uuid
+    )
+    .fetch_optional(&*DB)
+    .await
+    .expect("db")
+    else {
+        return html!("Doesn't exists!");
+    };
+
+    let number_of_users_that_voted: i64 = sqlx::query_scalar!(
+        r#"
+        select count(*) as "dum!"
+        from polls_users pu
+        where pu.poll_id = $1
+        "#,
+        id
+    )
+    .fetch_optional(&*DB)
+    .await
+    .expect("db")
+    .unwrap_or_default();
+
+    if number_of_users_that_voted == i64::from(expected_number_of_users) {
+        struct Results {
+            name: String,
+            votes_array: Vec<String>,
+            total_score: i64,
+        }
+
+        let results = sqlx::query_as!(
+            Results,
+            r#"
+            select po.name, array_agg(concat(pu.name,':', v.note)) as "votes_array!", sum(v.note) as "total_score!"
+            from polls_options po
+            inner join votes v on v.option_id = po.id
+            inner join polls_users pu on v.user_poll_id = pu.id
+            where po.poll_id = $1
+            group by po.name
+            order by sum(v.note)
+            "#,
+            id
+        )
+        .fetch_all(&*DB)
+        .await
+        .expect("db");
+
+        html! {
+            h1 {"The poll is over!!!"}
+            p {"Here are the results"}
+            ul {
+                @for res in results {
+                    li {
+                        h2 { (res.name) ": " (res.total_score) "/" (number_of_users_that_voted * 5) }
+
+                        p {
+                            @for vote in res.votes_array {
+                                (vote)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    } else {
+        html! {
+            h2 { "Enter your name" }
+            input #name {}
+            h2 { "Vote for the differnt options" }
+            ul {
+                li {
+
+                }
+            }
+            p #err {
+            }
+            button {
+                "Vote!"
+            }
+        }
+    }
 }
+
