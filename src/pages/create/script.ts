@@ -1,4 +1,4 @@
-import "htmx.org"
+// import "htmx.org"
 import "hyperscript.org"
 
 $("#submit").on("click", () => {

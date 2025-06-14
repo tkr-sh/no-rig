@@ -25,6 +25,7 @@ pub async fn start() {
     let app = Router::new()
         .route("/", get(pages::create::render))
         .route("/create", get(pages::create::render))
+        .route("/vote/{*wildcard}", get(pages::vote::render))
         .layer(middleware::from_fn(header::render))
         .layer(middleware::from_fn(template::template))
         .layer(middleware::from_fn(cache::html_middleware))

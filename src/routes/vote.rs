@@ -1,5 +1,8 @@
 use {
-    crate::{db::DB, shared::wini::err::ServerError},
+    crate::{
+        db::DB,
+        shared::{validate::validate_votes, wini::err::ServerError},
+    },
     axum::{Json, extract::Path},
     hyper::StatusCode,
     serde::Deserialize,
@@ -10,7 +13,7 @@ use {
 #[derive(Debug, Deserialize)]
 pub(crate) struct Vote {
     with_username: String,
-    options: HashMap<i64, u8>,
+    options: HashMap<i64, usize>,
 }
 
 
@@ -23,7 +26,8 @@ pub(crate) async fn post(
         id: i32,
     }
 
-    let poll_uuid = Uuid::from_str(&poll_id).expect("TODO");
+    let poll_uuid = Uuid::from_str(&poll_id)
+        .map_err(|_| ServerError::DebugedError(String::from("UUID is not valid")))?;
     let Some(Poll {
         allowed_usernames,
         id,
@@ -39,12 +43,16 @@ pub(crate) async fn post(
     .fetch_optional(&*DB)
     .await?
     else {
-        return Err(ServerError::Status(StatusCode::NOT_FOUND));
+        return Err(ServerError::DebugedError(String::from(
+            "This vote doesn't exists",
+        )));
     };
 
 
     if !allowed_usernames.contains(&body.with_username) {
-        return Err(ServerError::Status(StatusCode::NOT_FOUND));
+        return Err(ServerError::DebugedError(String::from(
+            "No user exists with this name",
+        )));
     }
 
     let already_exists = sqlx::query_scalar!(
@@ -62,7 +70,27 @@ pub(crate) async fn post(
     .await?;
 
     if already_exists {
-        return Err(ServerError::Status(StatusCode::NOT_FOUND));
+        return Err(ServerError::DebugedError(String::from(
+            "User already voted!",
+        )));
+    }
+
+    let nb_options = sqlx::query_scalar!(
+        r#"
+        select count(*)
+        from polls_options
+        where poll_id = $1
+        "#,
+        id
+    )
+    .fetch_one(&*DB)
+    .await?;
+
+    if let Err(err) = validate_votes(
+        usize::try_from(nb_options.unwrap_or_default()).unwrap(),
+        &body.options.values().copied().collect::<Vec<_>>(),
+    ) {
+        return Err(ServerError::DebugedError(err.to_string()));
     }
 
     let poll_user_id = sqlx::query_scalar!(
@@ -88,7 +116,7 @@ pub(crate) async fn post(
         &body
             .options
             .values()
-            .map(|n| i16::from(*n))
+            .map(|n| i16::try_from(*n).unwrap())
             .collect::<Vec<i16>>(),
     )
     .execute(&*DB)
