@@ -31,6 +31,8 @@ $("#submit").on("click", () => {
             }
         })
         .then(() => {
+            $("main").forEach(e => e.addClass("hidden"));
+            $("body")[0].innerHTML += "<h1 class=\"success\">Vote registered! Thanks</h1>";
 
         })
         .catch(err => {

@@ -121,41 +121,43 @@ pub async fn render(req: Request) -> Markup {
         .expect("db");
 
         html! {
-            h1 {(title)}
-            h2 {
-                "Rules"
-            }
-            p {
-                "You have a certain number of points that you can place. You must use "
-                i { "all" }
-                " your points! You must also vote for each option"
-            }
+            main {
+                h1 {(title)}
+                h2 {
+                    "Rules"
+                }
+                p {
+                    "You have a certain number of points that you can place. You must use "
+                    i { "all" }
+                    " your points! You must also vote for each option"
+                }
 
 
-            h2 { "Enter your name" }
-            input #name {}
+                h2 { "Enter your name" }
+                input #name {}
 
-            h1 .invalid #score {
-                "0 / " (votes.len() * 3)
-            }
-            h4 {"points used"}
-            h2 { "Vote for the different options" }
-            ul {
-                @for vote in votes {
-                    li .option {
-                        (vote.name)
-                        ul .score {
-                            @for idx in 0..=5 {
-                                li class=(format!("opt-{}", vote.id)) onclick=(format!("set({},{idx})", vote.id)){(idx)}
+                h1 .invalid #score {
+                    "0 / " (votes.len() * 3)
+                }
+                h4 {"points used"}
+                h2 { "Vote for the different options" }
+                ul {
+                    @for vote in votes {
+                        li .option {
+                            (vote.name)
+                            ul .score {
+                                @for idx in 0..=5 {
+                                    li class=(format!("opt-{}", vote.id)) onclick=(format!("set({},{idx})", vote.id)){(idx)}
+                                }
                             }
                         }
                     }
                 }
-            }
-            p #err .hidden {
-            }
-            button #submit{
-                "Vote!"
+                p #err .hidden {
+                }
+                button #submit{
+                    "Vote!"
+                }
             }
         }
     }
